@@ -8,7 +8,7 @@ const httpServer = http.createServer(app);
 const io = new Server(httpServer);
 
 io.on("connection", (socket) => {
-  registerRoomHandler(socket);
+  registerRoomHandler(io, socket);
 });
 
 httpServer.listen(3001, () => {
