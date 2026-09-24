@@ -13,7 +13,9 @@ function uuidCreator() {
 export function createRoom(socketId, name) {
   const result = nameSchema.safeParse(name);
   if (!result.success) {
-    throw Object.assign(new Error(result.error.format()));
+    throw Object.assign(new Error(result.error.issues[0].message), {
+      status: 400,
+    });
   }
   let roomId = uuidCreator();
 
@@ -39,4 +41,38 @@ export function createRoom(socketId, name) {
   socketRooms.set(socketId, roomId);
 
   return rooms.get(roomId);
+}
+
+export function joinRoom(socketId, roomCode, name) {
+  const result = nameSchema.safeParse(name);
+  if (!result.success) {
+    throw Object.assign(new Error(result.error.issues[0].message), {
+      status: 400,
+    });
+  }
+  const roomId = roomCode.trim().toUpperCase();
+
+  if (!rooms.has(roomId)) {
+    throw Object.assign(new Error("room not found"), { status: 404 });
+  }
+  if (socketRooms.has(socketId)) {
+    throw Object.assign(new Error("socket already in room"), { status: 409 });
+  }
+
+  const room = rooms.get(roomId);
+  if (room.status !== "waiting") {
+    throw Object.assign(new Error("room is not availble"), { status: 400 });
+  }
+  if (room.players.length > 1) {
+    throw Object.assign(new Error("room is full"), { status: 400 });
+  }
+
+  room.players.push({
+    socketId,
+    name: result.data,
+    color: "black",
+  });
+  socketRooms.set(socketId, roomId);
+
+  return room;
 }
