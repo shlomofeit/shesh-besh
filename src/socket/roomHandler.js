@@ -40,4 +40,10 @@ export function registerRoomHandler(io, socket) {
       });
     }
   });
+
+  socket.on("room:leave", (data, callback) => {
+    try {
+      co;
+    } catch (error) {}
+  });
 }

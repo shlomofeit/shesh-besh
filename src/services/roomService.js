@@ -76,3 +76,14 @@ export function joinRoom(socketId, roomCode, name) {
 
   return room;
 }
+
+export function closeRoom(socketId, roomCode) {
+  const roomId = roomCode.trim().toUpperCase();
+
+  if (!rooms.has(roomId)) {
+    throw Object.assign(new Error("room not found"), { status: 404 });
+  }
+  if (socketRooms.has(socketId)) {
+    throw Object.assign(new Error("socket already in room"), { status: 409 });
+  }
+}
