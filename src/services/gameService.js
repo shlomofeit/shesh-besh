@@ -3,6 +3,22 @@ export function rollDie() {
   return die;
 }
 
+export function transferTurn(currentPlayer) {
+  const newPlayer = currentPlayer === "white" ? "black" : "white";
+  const die1 = rollDie();
+  const die2 = rollDie();
+  const dice = [die1, die2];
+  const remainingDice = die1 === die2 ? [die1, die1, die1, die1] : [die1, die2];
+
+  const result = {
+    currentPlayer: newPlayer,
+    dice,
+    remainingDice,
+  };
+
+  return result;
+}
+
 export function firstPlayerDraw() {
   let black = rollDie();
   let white = rollDie();
@@ -105,9 +121,10 @@ export function applyMove(game, from, die) {
   game.remainingDice.splice(indexOfDice, 1);
 
   if (game.remainingDice.length < 1) {
-    game.currentPlayer = game.currentPlayer === "white" ? "black" : "white";
-    game.dice = [rollDie(), rollDie()];
-    game.remainingDice = [...game.dice];
+    const newTurn = transferTurn(game.currentPlayer);
+    game.currentPlayer = newTurn.currentPlayer;
+    game.dice = newTurn.dice;
+    game.remainingDice = newTurn.remainingDice;
   }
 
   return game;
