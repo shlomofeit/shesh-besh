@@ -104,5 +104,11 @@ export function applyMove(game, from, die) {
   if (game.board[from].checkers === 0) game.board[from].owner = null;
   game.remainingDice.splice(indexOfDice, 1);
 
+  if (game.remainingDice.length < 1) {
+    game.currentPlayer = game.currentPlayer === "white" ? "black" : "white";
+    game.dice = [rollDie(), rollDie()];
+    game.remainingDice = [...game.dice];
+  }
+
   return game;
 }
