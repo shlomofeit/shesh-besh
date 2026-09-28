@@ -39,12 +39,70 @@ export function initialGame() {
     board,
     currentPlayer: playerDraw.result,
     dice: playerDraw.firstPlayerDice,
-    remainingDice: playerDraw.firstPlayerDice,
+    remainingDice: [...playerDraw.firstPlayerDice],
     bar: { white: 0, black: 0 },
     borneOff: { white: 0, black: 0 },
     status: "waiting-for-move", // waiting-for-roll | waiting-for-move | finished
     winner: null,
   };
+
+  return game;
+}
+
+function pointToIndex(point, color) {
+  return color === "white" ? point - 1 : 24 - point;
+}
+
+function calculateDestination(from, die, color) {
+  return color === "white" ? from - die : from + die;
+}
+
+function getBarDestination(die, color) {
+  return color === "white" ? 24 - die : die - 1;
+}
+
+function distanceToExit(index, color) {
+  return color === "white" ? index + 1 : 24 - index;
+}
+
+export function isMoveLegal(color, die) {
+  const otherPlayer = color === "white" ? "black" : "white";
+  // const moveResult = otherPlayer === "white" ? 24 - die
+}
+
+export function applyMove(game, from, die) {
+  const fromOwner = game.board[from].owner;
+
+  if (fromOwner !== game.currentPlayer) {
+    throw Object.assign(new Error("the owner is not leagal"), { status: 400 });
+  }
+
+  const destination = calculateDestination(from, die, game.currentPlayer);
+
+  if (destination > 23 || destination < 0) {
+    throw Object.assign(new Error("the move is not leagal"), { status: 400 });
+  }
+
+  if (
+    game.board[destination].owner &&
+    game.board[destination].owner !== game.currentPlayer
+  ) {
+    throw Object.assign(new Error("the move is not leagal"), { status: 400 });
+  }
+
+  const indexOfDice = game.remainingDice.indexOf(die);
+  if (indexOfDice < 0) {
+    throw Object.assign(new Error("the move is not leagal"), { status: 400 });
+  }
+
+  if (!game.board[destination].owner)
+    game.board[destination].owner = game.currentPlayer;
+
+  game.board[from].checkers -= 1;
+  game.board[destination].checkers += 1;
+
+  if (game.board[from].checkers === 0) game.board[from].owner = null;
+  game.remainingDice.splice(indexOfDice, 1);
 
   return game;
 }
